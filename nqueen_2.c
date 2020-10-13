@@ -82,7 +82,7 @@ char ***solveNQueens(int n, int *returnSize, int** returnColumnSizes){
     for(int i =0;i<Arraysize[n];i++){
         output[i] = malloc(sizeof(char*)*n);
         for(int j =0;j<n;j++)
-            output[i][j] = malloc(sizeof(char)*(n));
+            output[i][j] = malloc(sizeof(char)*(n+1));
     }
     char **Table = malloc(sizeof(char*)*n);
 
@@ -90,7 +90,7 @@ char ***solveNQueens(int n, int *returnSize, int** returnColumnSizes){
         Table[i] = malloc((n+1 ) * sizeof(char));
         for (int j = 0; j < n; j++)
             Table[i][j] = '.';
-        //Table[i][n] = '\0';
+        Table[i][n] = '\0';
     }
 
     nqueen(0,n,Table,output);
@@ -101,7 +101,6 @@ char ***solveNQueens(int n, int *returnSize, int** returnColumnSizes){
 
 	return output;
 }
-
 int main(){
 	int n = 8;
 	int anssize =0;
