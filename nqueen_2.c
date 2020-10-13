@@ -1,65 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
-int Arraysize[16]={0,1,0,0,2,10,4,40,92,352,724,2680,14200,73712,365596,2279184};
+#include <string.h>
 typedef enum { false, true } bool;
-int Counts =0;
 void printTable(char **Table,int n);
-void clonetable(char **Table,char ***output, int n);
-bool checkqueen(int x, int y, char **table,int n)
-{
-    for (int i = 0; i < y; i++)
-        if (table[i][x] )
-            return false;
-
-	for(int i=x-1,j=y-1; i>=0&&j>=0 ; i--,j--)
-		if (table[j][i] )
-            return false;
-
-    for (int i = x+1, j = y-1; j >= 0 && i < n; i++, j--)
-        if (table[j][i] )
-            return false;
-    return true;
-}
-
-void nqueen(int line, int n,char**Table,char ***output)
-{
-    int list;
-	for (list=0; list<n; list++) {
-        if (checkqueen(list, line,Table,n)) {
-            Table[line][list]='Q';
-            if(line == n-1){
 
 
-
-    			clonetable(Table,output,n);
-
-            	Counts++;
-            	//printf("(%d)\n",Counts);
-    			//printTable(Table,n);
-
-
-				Table[line][list]=0x00;
-            	return;
-			}
-            nqueen(line+1,n,Table,output);
-			Table[line][list]=0x00;
-        }
-    }
-}
-void clonetable(char **Table,char ***output, int n)
-{
-    for(int i=0;i<n;i++){
-        for(int j=0;j<n;j++){
-            if(!Table[i][j]){
-                output[Counts][i][j] = '.';
-            }
-            else{
-
-                output[Counts][i][j] = 'Q';
-            }
-        }
-    }
-}
 void printTable(char **Table,int n)
 {
 	printf("\n");
@@ -74,6 +19,45 @@ void printTable(char **Table,int n)
 	}
 	printf("\n");
 }
+int Counts =0;
+bool checkqueen(int x, int y, char **table,int n)
+{
+    for (int i = 0; i < y; i++)
+        if (table[i][x]=='Q' )
+            return false;
+
+	for(int i=x-1,j=y-1; i>=0&&j>=0 ; i--,j--)
+		if (table[j][i]=='Q' )
+            return false;
+
+    for (int i = x+1, j = y-1; j >= 0 && i < n; i++, j--)
+        if (table[j][i]=='Q' )
+            return false;
+    return true;
+}
+
+void nqueen(int line, int n,char**Table,char ***output)
+{
+
+    if(line>=n){
+        for (int i = 0; i < n; i++)
+            memcpy(output[Counts][i], Table[i], n+1 );
+        Counts++;
+        return;
+
+    }
+    for (int list=0; list<n; list++) {
+        Table[line][list]='Q';
+        if (checkqueen(list, line,Table,n))
+            nqueen(line+1,n,Table,output);
+
+        Table[line][list]='.';
+
+
+    }
+
+}
+
 
 void freeTable(char **Table,int n)
 {
@@ -81,31 +65,58 @@ void freeTable(char **Table,int n)
         free(Table[i]);
     free(Table);
 }
-char ***main(int n, int* returnSize, int** returnColumnSizes){
-    n = 5;
+char ***solveNQueens(int n, int *returnSize, int** returnColumnSizes){
+
+    int Arraysize[16]={0,1,0,0,2,10,4,40,92,352,724,2680,14200,73712,365596,2279184};
+    Counts=0;
+    printf("----solveNQueens--- %d \n",n);
     *returnSize = Arraysize[n];
+
+    printf("*returnSize = %d\n",*returnSize);
+    *returnColumnSizes = malloc(Arraysize[n] * sizeof(int));
+    for (int i = 0; i < Arraysize[n]; i++)
+        (*returnColumnSizes)[i] = n;
+
     char ***output = malloc(sizeof(char**)*Arraysize[n]);
 
     for(int i =0;i<Arraysize[n];i++){
         output[i] = malloc(sizeof(char*)*n);
         for(int j =0;j<n;j++)
-            output[i][j] = malloc(sizeof(char)*n);
+            output[i][j] = malloc(sizeof(char)*(n));
     }
-
-    printf(" ----- %d-queen -----\n",n);
     char **Table = malloc(sizeof(char*)*n);
-    for(int i=0;i<n;i++)
-        Table[i] = calloc(n,sizeof(char));
+
+    for (int i = 0; i < n; i++) {
+        Table[i] = malloc((n+1 ) * sizeof(char));
+        for (int j = 0; j < n; j++)
+            Table[i][j] = '.';
+        //Table[i][n] = '\0';
+    }
 
     nqueen(0,n,Table,output);
 
-    printf("Count = %d\n",Counts);
-    Counts=0;
     freeTable(Table,n);
-    printf(" ----- ------------- -----\n");
-    for(int i =0;i<Arraysize[n];i++)
-        printTable(output[i],n);
 
+
+
+	return output;
+}
+
+int main(){
+	int n = 8;
+	int anssize =0;
+	int * returnsize = &anssize ;
+	int *returnColumnSizes;
+
+	char ***p = solveNQueens(n,returnsize,&returnColumnSizes);
+
+    printf(" ----- %d-queen -----\n",n);
+    printf("Count = %d\n",anssize);
+    for(int i =0;i<anssize;i++)
+		printTable(p[i],n);
+
+    printf("Count = %d\n",anssize);
+	printf(" ----- ------------- -----\n");
 	return 0;
 }
 
